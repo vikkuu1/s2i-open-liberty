@@ -355,9 +355,15 @@ authors-route    authors-route-default.your-roks-43-1n-cl-2bef1f4b4097001da95020
 authors2    authors2-default.your-roks-43-1n-cl-2bef1f4b4097001da9502000c44fc2b2-0000.us-south.containers.appdomain.cloud    authors2    9080    None
 ```
 
-1. Use the route named `authors-route` and append `/openapi/ui` after the `HOST/PORT` value to open the UI, or append `/api/v1/getauthor` to set the API_URL,
+1. Use the route named `authors2` and append `/openapi/ui` after the `HOST/PORT` value to open the UI, or append `/api/v1/getauthor` to set the API_URL. View the sample below, however, you will have a different route.
 
+```bash
+export API_URL=authors2-default.osgdcw01-0e3e0ef4c9c6d831e8aa6fe01f33bfc4-0000.sjc04.containers.appdomain.cloud
 ```
+
+Then test your application with the command below:
+
+```bash
 curl -X GET "http://$API_URL/api/v1/getauthor" -H "accept: application/json"
 ```
 
