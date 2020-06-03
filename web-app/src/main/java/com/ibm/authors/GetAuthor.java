@@ -54,8 +54,8 @@ public class GetAuthor {
 			@QueryParam("name") String name) {
 		
 			Author author = new Author();
-			author.name = "Oliver Rodriguez";
-			author.twitter = "https://twitter.com/heres__ollie";
+			author.name = "Vivek Gupta";
+			author.twitter = "https://twitter.com/vikkuu:w";
 			author.blog = "https://cloud.ibm.com";
 
 			return Response.ok(this.createJson(author)).build();
