@@ -56,7 +56,7 @@ public class GetAuthor {
 			Author author = new Author();
 			author.name = "Oliver Rodriguez";
 			author.twitter = "https://twitter.com/heres__ollie";
-			author.blog = "https://developer.ibm.com";
+			author.blog = "https://cloud.ibm.com";
 
 			return Response.ok(this.createJson(author)).build();
 	}
