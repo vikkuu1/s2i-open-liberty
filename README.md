@@ -35,11 +35,12 @@ The following prerequisites are needed:
 1. Clone this repository locally and navigate to the newly cloned directory.
 
 ```bash
+cd home
 git clone https://github.com/odrodrig/s2i-open-liberty
 cd s2i-open-liberty
 ```
 
-1.  To make things easier, we are going to set some environment variables that we can reuse in later commands.
+1. To make things easier, we are going to set some environment variables that we can reuse in later commands.
 
 **Note**: Replace *Your Username* with your actual docker hub username. If you do not have one, go [here](https://hub.docker.com) to create one.
 
@@ -48,12 +49,12 @@ export ROOT_FOLDER=$(pwd)
 export DOCKER_USERNAME=<your-docker-username>
 ```
 
-1. Log in with your OpenShift Cluster. 
-   
+1. Log in with your OpenShift Cluster.
+  
    1. Open your `OpenShift web console` and from the profile dropdown `Copy Login Command`.
    1. Paste the login command to login, e.g.
 
-    ```
+    ```bash
     oc login --token=<login-token> --server=https://<cluster-subdomain>:<service-port>
     ```
 
@@ -63,17 +64,19 @@ In this section we will create the first of our two S2I images. This image will 
 
 1. Navigate to the builder image directory
 
-```
+```bash
 cd ${ROOT_FOLDER}/builder-image
 ```
 
 1. Review the ./Dockerfile
 
-```
+```bash
 cat Dockerfile
 ```
-    - The image uses a Redhat certified Universal Base Image (UBI) from the public container registry at Redhat,
-    ```
+
+* The image uses a Redhat certified Universal Base Image (UBI) from the public container registry at Redhat,
+
+    ```bash
     FROM registry.access.redhat.com/ubi8/ubi:8.1
     ```
 
@@ -92,6 +95,7 @@ docker build -t $DOCKER_USERNAME/s2i-open-liberty-builder:0.1.0 .
 1. Push the builder image out to Docker hub.
 
 ```bash
+docker login
 docker push $DOCKER_USERNAME/s2i-open-liberty-builder:0.1.0
 ```
 
@@ -134,7 +138,7 @@ In this section, we will use S2I to build our application container image and th
 1. Use the builder image and runtime image to build the application image
 
 ```
-cd $ROOT_FOLDER/sample
+cd $ROOT_FOLDER/web-app
 ```
 
 1. Run a multistage S2I build, to build the application.
@@ -276,17 +280,17 @@ docker push $REGISTRY/default/s2i-open-liberty:0.1.0
 1. We are almost ready to deploy our application but first we need to create an application template that contains all the components of our application. See [Using Templates](https://docs.openshift.com/container-platform/4.3/openshift_images/using-templates.html).
 1. Review the `template.yaml` file, which contains the BuildConfig object and the DeploymentConfig object as well as the other application objects,
 
-```
+```bash
 cat template.yaml
 ```
 
 1. The template file that we will apply, creates the following Kubernetes objects:
-    - Template,
-    - 4 ImageStream objects: authors-builder, authors-runtime, s2i-open-liberty-builder, s2i-open-liberty
-    - 2 BuildConfig objects: the `open-liberty-builder` produces a `authors-builder:0.1.0` from `s2i-open-liberty-builder:0.1.0`; and the `open-liberty-app` produces an `authors-runtime:0.1.0` from `s2i-open-liberty:0.1.0`. The former build config is for the builder image and the latter is for the runtime image.
-    - DeploymentConfig for `authors-runtime:0.1.0` to manage the application Pods and ReplicaSet, 
-    - Service, and 
-    - Route.
+    * Template,
+    * 4 ImageStream objects: authors-builder, authors-runtime, s2i-open-liberty-builder, s2i-open-liberty
+    * 2 BuildConfig objects: the `open-liberty-builder` produces a `authors-builder:0.1.0` from `s2i-open-liberty-builder:0.1.0`; and the `open-liberty-app` produces an `authors-runtime:0.1.0` from `s2i-open-liberty:0.1.0`. The former build config is for the builder image and the latter is for the runtime image.
+    * DeploymentConfig for `authors-runtime:0.1.0` to manage the application Pods and ReplicationController,
+    * Service, and
+    * Route.
 
 ```bash
 oc apply -f template.yaml
@@ -295,7 +299,7 @@ oc apply -f template.yaml
 1. Lastly, we can use the `oc` cli to deploy the application while using the template that was just created.
 
 ```bash
-oc new-app --template open-liberty-app
+oc new-app --template open-liberty-app -p DOCKER_USERNAME=$DOCKER_USERNAME
 ```
 
 After running the command you may see a message that says `Failed` however this is because the build has not yet completed. 
@@ -381,7 +385,7 @@ cd s2i-open-liberty
 1. Then run the following command to redeploy the application, this time we will specify to point to your newly created repo. Replace **\<repo url\>** with the url to the GitHub repo that you copied earlier.
 
 ```bash
-oc new-app --template open-liberty-app -p SOURCE_REPOSITORY_URL=<repo url> -p APP_NAME=authors-3
+oc new-app --template open-liberty-app -p SOURCE_REPOSITORY_URL=<repo url> -p APP_NAME=authors-3 -p DOCKER_USERNAME=$DOCKER_USERNAME
 ```
 
 <!-- 1. Next, open up the **template.yaml** file in the code editor of your choice.
@@ -399,7 +403,7 @@ Change the *value* field to the url of your new git repo that you copied earlier
         * Source URL=https://github.com/odrodrig/s2i-open-liberty.git
         * App name=authors-3
         * Source Branch=master
-        * Source Directory=/sample
+        * Source Directory=/web-app
         * Output Directory=/tmp/src/
         * GitHub Webhook Secret=xxxxxxxx # generated
 ```
@@ -432,7 +436,7 @@ Replace the **\<secret\>** portion from the url copied in the previous step with
 
 You should now see a webhook listed in the project settings. Ensure that the webhook has a green checkmark next to it. If there is a red X, try creating the webhook again.
 
-1. Now that the webhook is configured, let's push a change and test it out. From your code editor of choice, navigate to the repo that you cloned and open `sample/src/main/java/com/ibm/authors/GetAuthor.java`
+1. Now that the webhook is configured, let's push a change and test it out. From your code editor of choice, navigate to the repo that you cloned and open `web-app/src/main/java/com/ibm/authors/GetAuthor.java`
 
 1. On lines 56-59 edit the name, twitter, and blog to your own information or fake information if you'd like.
 
