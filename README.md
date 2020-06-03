@@ -346,10 +346,11 @@ authors-deployment-5df596c88f-7vcgb   1/1     Running     0          56m
 open-liberty-builder-1-build          0/1     Completed   0          25m
 ```
 
-1. Once you have verified that the new pod is running, navigate to `Networking` > `Routes` and click on the `open-liberty-app` route to visit your running application.
+1. Once you have verified that the new pod is running, enter the following command to view the application routes.
 
 ```
 oc get routes
+
 NAME    HOST/PORT    PATH    SERVICES    PORT    TERMINATION    WILDCARD
 authors-route    authors-route-default.your-roks-43-1n-cl-2bef1f4b4097001da9502000c44fc2b2-0000.us-south.containers.appdomain.cloud    authors-service    http    None
 authors2    authors2-default.your-roks-43-1n-cl-2bef1f4b4097001da9502000c44fc2b2-0000.us-south.containers.appdomain.cloud    authors2    9080    None
@@ -454,7 +455,12 @@ Author author = new Author();
 ```
 
 1. Save the file.
-1. From your terminal and within your cloned repo run the following
+1. From your terminal and within your cloned repo run the following commands after replacing the email address and name with your own information. This is the email address used to sign into github.
+
+```bash
+git config --global user.email "you@example.com"
+git config --global user.name "Your Name"
+```
 
 ```bash
 git add .
@@ -468,8 +474,28 @@ With the changes pushed, we can now go to the OpenShift dashboard and view the b
 
 1. After the builds are completed, navigate to `Workloads` > `Pods` and look for your new pod. It should start with `authors-3`.
 
-1. Once you have verified that the new pod is running, navigate to `Networking` > `Routes` and click on the `authors-3` route to visit your running application.
+1. Once you have verified that the new pod is running, enter the following command to view the application routes.
 
+```
+oc get routes
+
+NAME    HOST/PORT    PATH    SERVICES    PORT    TERMINATION    WILDCARD
+authors-route    authors-route-default.your-roks-43-1n-cl-2bef1f4b4097001da9502000c44fc2b2-0000.us-south.containers.appdomain.cloud    authors-service    http    None
+authors2    authors2-default.your-roks-43-1n-cl-2bef1f4b4097001da9502000c44fc2b2-0000.us-south.containers.appdomain.cloud    authors2    9080    None
+```
+
+1. Use the route named `authors-3` and append `/openapi/ui` after the `HOST/PORT` value to open the UI, or append `/api/v1/getauthor` to set the API_URL. View the sample below, however, you will have a different route.
+
+```bash
+export API_URL=authors-3-default.osgdcw01-0e3e0ef4c9c6d831e8aa6fe01f33bfc4-0000.sjc04.containers.appdomain.cloud
+```
+
+Then test your application with the command below:
+
+```bash
+curl -X GET "http://$API_URL/api/v1/getauthor" -H "accept: application/json"
+```
+<!-- 
 1. To test out the change we made add the following to the end of your application route:
 
 ```bash
@@ -480,7 +506,7 @@ This will take you to the open API documentation of your app.
 
 1. Click on the rectangle labeled **GET** to expand the api endpoint and then click on **Try it out** on the right side.
 
-1. Enter the name you changed in the `GetAuthor.java` file and click on **Execute**.
+1. Enter the name you changed in the `GetAuthor.java` file and click on **Execute**. -->
 
 You should then see the info that you edited in the file earlier.
 
